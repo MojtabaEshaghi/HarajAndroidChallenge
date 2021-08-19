@@ -1,6 +1,7 @@
 package com.example.harajtask.ui.allProcductFr
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import com.example.harajtask.data.adapter.MainAdpterHelper
 import com.example.harajtask.databinding.AllProductFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
 
+private const val TAG = "jojo"
 @AndroidEntryPoint
 class AllProductFragment : Fragment(), MainAdpterHelper {
 
@@ -22,6 +24,21 @@ class AllProductFragment : Fragment(), MainAdpterHelper {
     private var _binding: AllProductFragmentBinding? = null
     private val binding get() = _binding!!
     private lateinit var adpater: MainAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel.getAllproducts()
+        adpater = MainAdapter()
+        adpater.mainAdpterHelper = this
+
+
+
+
+
+        observeViewModel()
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,22 +50,13 @@ class AllProductFragment : Fragment(), MainAdpterHelper {
             false
         )
 
-        viewModel.getAllproducts()
-        adpater = MainAdapter()
-        adpater.mainAdpterHelper = this
-
         binding.mainRecycler.adapter = adpater
         binding.mainRecycler.hasFixedSize()
 
 
-
-        observeViewModel()
-
-
-
-
         return binding.root
     }
+
 
     private fun observeViewModel() {
 
@@ -64,7 +72,9 @@ class AllProductFragment : Fragment(), MainAdpterHelper {
         findNavController().navigate(R.id.action_allProductFragment_to_productFragment, bundle)
     }
 
+
     override fun onDestroy() {
+        Log.i(TAG, "onDestroy: ")
         super.onDestroy()
         _binding = null
 
