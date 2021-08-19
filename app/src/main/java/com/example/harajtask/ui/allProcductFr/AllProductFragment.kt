@@ -1,32 +1,74 @@
 package com.example.harajtask.ui.allProcductFr
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.harajtask.R
+import com.example.harajtask.data.adapter.MainAdapter
+import com.example.harajtask.data.adapter.MainAdpterHelper
+import com.example.harajtask.databinding.AllProductFragmentBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-class AllProductFragment : Fragment() {
+@AndroidEntryPoint
+class AllProductFragment : Fragment(), MainAdpterHelper {
 
-    companion object {
-        fun newInstance() = AllProductFragment()
-    }
 
-    private lateinit var viewModel: AllProductViewModel
+    private val viewModel: AllProductViewModel by viewModels()
+    private var _binding: AllProductFragmentBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var adpater: MainAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.all_product_fragment, container, false)
+        _binding = AllProductFragmentBinding.inflate(
+            LayoutInflater.from(inflater.context),
+            container,
+            false
+        )
+
+        viewModel.getAllproducts()
+        adpater = MainAdapter()
+        adpater.mainAdpterHelper = this
+
+        binding.mainRecycler.adapter = adpater
+        binding.mainRecycler.hasFixedSize()
+
+
+
+        observeViewModel()
+
+
+
+
+        return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(AllProductViewModel::class.java)
-        // TODO: Use the ViewModel
+    private fun observeViewModel() {
+
+        viewModel.listProducts.observe(requireActivity(), {
+            adpater.setData(it)
+        })
+
+
     }
+
+    override fun onClickItem(id: Int) {
+        val bundle = bundleOf("id" to id)
+        findNavController().navigate(R.id.action_allProductFragment_to_productFragment, bundle)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+
+    }
+
 
 }
